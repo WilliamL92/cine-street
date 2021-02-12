@@ -29,14 +29,14 @@ module.exports = {
                         }).then(async (json)=>{
                             if(json.results[0] && json.results[0].poster_path != null){
                                 count++
-                                knex('films').insert({titre: currentFilm.name, 
+                                knex('list-films').insert({titre: currentFilm.name, 
                                                     description: json.results[0].overview, 
                                                     image_url: `http://image.tmdb.org/t/p/w500/${json.results[0].poster_path}`, 
                                                     date_sortie: json.results[0].release_date, 
                                                     date_maj: mydate.getTimeNow(), 
                                                     coords: JSON.stringify(currentFilm.coords)})
                                 .then(function(res){
-                                    console.log(`count / ${Object.keys(JSON.parse(data)).length}`)
+                                    console.log(`${count} / ${Object.keys(JSON.parse(data)).length}`)
                                 })
                                 .catch(err)
                             }

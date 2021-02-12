@@ -1,12 +1,39 @@
 import './index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import React from "react";
+import React, { useState} from "react";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import { Container, Col, Image, Row, Form, FormControl, Button } from 'react-bootstrap';
 
 
-
 function Register() {
+  const [error, setError] = useState("")
+  const onFormSubmit = e => {
+    e.preventDefault()
+    const formData = new FormData(e.target),
+          formDataObj = Object.fromEntries(formData.entries())
+  if(formDataObj.password === formDataObj.confirmpassword){
+    setError("[SUCCESS] Inscription réussi !")
+      return fetch('http://localhost:8080/insertUser', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', "Accept": "application/json"},
+        body: JSON.stringify({
+          nom: formDataObj.nom,
+          prenom: formDataObj.prenom,
+          email: formDataObj.email,
+          password: formDataObj.password
+        })
+      }).then((response) => {response.json()})
+        .then((responseJson) => {
+          return responseJson.success
+        })
+        .catch((error) => {
+          console.error(error)
+        });
+    }
+    else {
+      setError("[ERROR] Les mots de passent ne correspondent pas !!")
+    }
+  }
 
   return (
       <div>
@@ -18,22 +45,26 @@ function Register() {
             <h2 className="font-weight-bold mt-4">Inscription</h2>
           </Row>
           <Container>
-            <Form className="mt-4">
-              <Form.Group controlId="pseudoForm">
-                <Form.Label className="font-weight-bold">Pseudonyme</Form.Label>
-                <Form.Control className="input-border shadow" type="text" placeholder="John" />
+            <Form onSubmit={onFormSubmit} className="inscription">
+              <Form.Group controlId="nomForm">
+                <Form.Label className="font-weight-bold">Nom</Form.Label>
+                <Form.Control className="input-border shadow" name="nom" type="text" placeholder="Smith" />
+              </Form.Group>
+              <Form.Group controlId="prenomForm">
+                <Form.Label className="font-weight-bold">Prénom</Form.Label>
+                <Form.Control className="input-border shadow" name="prenom" type="text" placeholder="John" />
               </Form.Group>
               <Form.Group controlId="emailForm">
                 <Form.Label className="font-weight-bold">Email</Form.Label>
-                <Form.Control className="input-border shadow" type="email" placeholder="johnsmith@example.com" />
+                <Form.Control className="input-border shadow" type="email" name="email" placeholder="johnsmith@example.com" />
               </Form.Group>
               <Form.Group controlId="passwordForm">
                 <Form.Label className="font-weight-bold">Mot de passe</Form.Label>
-                <Form.Control className="input-border shadow" type="password" placeholder="••••••••••" />
+                <Form.Control className="input-border shadow" type="password" name="password" placeholder="••••••••••" />
               </Form.Group>
               <Form.Group controlId="confirmPasswordForm">
                 <Form.Label className="font-weight-bold">Confirmer le mot de passe</Form.Label>
-                <Form.Control className="input-border shadow" type="password" placeholder="••••••••••" />
+                <Form.Control className="input-border shadow" type="password" name="confirmpassword" placeholder="••••••••••" />
               </Form.Group>
               <Row className="d-flex justify-content-center mt-4">
                 <Button type="submit" className="bigButton shadow">INSCRIPTION</Button>            
@@ -43,6 +74,7 @@ function Register() {
           <Row className="d-flex justify-content-center">
             <Link className="smallLink my-4" to="/login">Déjà inscrit ? Connectez-vous</Link>       
           </Row>
+          {error}
         </Container>
       </div>
 
